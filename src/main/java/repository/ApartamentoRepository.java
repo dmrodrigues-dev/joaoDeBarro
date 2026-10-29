@@ -10,7 +10,7 @@ public class ApartamentoRepository extends CsvRepository<Apartamento>{
         super(Path.of("data/apartamento.csv"), Apartamento.class);
     }
 
-    public Apartamento buscarPorNumeroTorre(String numero, String torre) {
+    public Apartamento buscarPorTorreNumero(String torre, String numero) {
         return dados.stream()
                 .filter(a -> a.getNumero().equals(numero) && a.getTorre().equals(torre))
                 .findFirst()

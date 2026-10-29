@@ -1,7 +1,6 @@
 package service;
 
 import model.Apartamento;
-import model.Morador;
 import repository.ApartamentoRepository;
 
 import java.util.List;
@@ -20,13 +19,13 @@ public class ApartamentoService {
     }
 
     public Apartamento buscarPorNumeroTorre(String torre, String numero) {
-        Apartamento ap = apartamentoRepository.buscarPorNumeroTorre(torre, numero);
+        Apartamento ap = apartamentoRepository.buscarPorTorreNumero(torre, numero);
         if (ap == null) System.out.println("Apartamento não encontrado.");
         return ap;
     }
 
     public void cadastrarApartamento(String torre, String numero) {
-        if (apartamentoRepository.buscarPorNumeroTorre(torre,  numero) != null) {
+        if (apartamentoRepository.buscarPorTorreNumero(torre,  numero) != null) {
             System.out.println("Já existe um apartamento com este número e torre.");
             return;
         }
@@ -37,7 +36,7 @@ public class ApartamentoService {
     }
 
     public void removerApartamento(String torre, String numero) {
-        Apartamento apartamento = apartamentoRepository.buscarPorNumeroTorre(torre,  numero);
+        Apartamento apartamento = apartamentoRepository.buscarPorTorreNumero(torre,  numero);
         if (apartamento == null) {
             System.out.println("Apartamento não encontrado.");
             return;
