@@ -38,7 +38,7 @@ public class Cobranca implements Identificavel{
     }
 
     public long diasAtraso(LocalDate hoje) {
-        return estaAtrasada(hoje) ? ChronoUnit.DAYS.between(hoje, vencimento) : 0;
+        return estaAtrasada(hoje) ? ChronoUnit.DAYS.between(vencimento, hoje) : 0;
     }
 
     public BigDecimal valorComEncargos(LocalDate hoje) {
