@@ -60,10 +60,10 @@ public abstract class CsvRepository<T extends Identificavel> {
         return List.copyOf(dados);
     }
 
-    public Optional<T> buscarPorId(Long id) {
+    public T buscarPorId(Long id) {
         return dados.stream()
                 .filter(e -> e.getId().equals(id))
-                .findFirst();
+                .findFirst().orElse(null);
     }
 
     private Long proximoId() {
