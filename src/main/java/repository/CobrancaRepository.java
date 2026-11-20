@@ -6,11 +6,20 @@ import model.Cobranca;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
+
+import model.Cobranca;
 
 public class CobrancaRepository extends CsvRepository<Cobranca> {
 
+    // Construtor utilizado pelo sistema.
     public CobrancaRepository() {
-        super(Path.of("data/cobranca.csv"), Cobranca.class);
+        super(Path.of("data", "cobranca.csv"), Cobranca.class);
+    }
+
+    // Construtor utilizado nos testes.
+    public CobrancaRepository(Path caminho) {
+        super(caminho, Cobranca.class);
     }
 
     public List<Cobranca> buscarPendentesMorador(
