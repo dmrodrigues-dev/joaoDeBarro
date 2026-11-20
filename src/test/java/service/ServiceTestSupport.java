@@ -18,7 +18,8 @@ public abstract class ServiceTestSupport {
             "visitante.csv",
             "autorizacao.csv",
             "reserva.csv",
-            "cobranca.csv"
+            "cobranca.csv",
+            "registro_visita.csv"
     };
     private final Map<Path, byte[]> backups = new HashMap<>();
 
@@ -28,6 +29,7 @@ public abstract class ServiceTestSupport {
     AutorizacaoRepository autorizacoes;
     ReservaRepository reservas;
     CobrancaRepository cobrancas;
+    RegistroVisitaRepository registrosVisita;
 
     @BeforeEach
     public void prepararRepositoriosIsolados() throws IOException {
@@ -48,6 +50,7 @@ public abstract class ServiceTestSupport {
         autorizacoes = new AutorizacaoRepository();
         reservas = new ReservaRepository();
         cobrancas = new CobrancaRepository();
+        registrosVisita = new RegistroVisitaRepository();
     }
 
     @AfterEach
