@@ -1,5 +1,8 @@
 package repository;
 
+import enums.TipoCobranca;
+import model.Cobranca;
+
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
@@ -19,28 +22,26 @@ public class CobrancaRepository extends CsvRepository<Cobranca> {
         super(caminho, Cobranca.class);
     }
 
-    // Busca cobranças atrasadas de um morador.
     public List<Cobranca> buscarPendentesMorador(
             Long moradorId, LocalDate dia) {
 
-        return dados.stream()
-                .filter(c -> Objects.equals(c.getMoradorId(), moradorId)
+        return listarTudo().stream()
+                .filter(c -> c.getMoradorId().equals(moradorId)
                         && c.estaAtrasada(dia))
                 .toList();
     }
 
-    // Atualiza uma cobrança já cadastrada.
-    public void atualizar(Cobranca cobranca) {
+    public Cobranca buscarTaxaReserva(Long reservaId) {
+        return listarTudo().stream()
+                .filter(c -> reservaId.equals(c.getReservaId())
+                        && c.getTipo() == TipoCobranca.TAXA_RESERVA)
+                .findFirst()
+                .orElse(null);
+    }
 
-        if (cobranca == null || cobranca.getId() == null) {
-            throw new IllegalArgumentException("Cobranca invalida.");
-        }
-
-        if (buscarPorId(cobranca.getId()) == null) {
-            throw new IllegalArgumentException("Cobranca nao encontrada.");
-        }
-
-        remover(cobranca.getId());
-        salvar(cobranca);
+    public List<Cobranca> buscarPorReserva(Long reservaId) {
+        return listarTudo().stream()
+                .filter(c -> reservaId.equals(c.getReservaId()))
+                .toList();
     }
 }
