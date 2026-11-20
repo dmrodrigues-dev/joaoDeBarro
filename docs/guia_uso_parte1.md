@@ -36,7 +36,7 @@ uma interface de terminal ou gráfica.
 ## 2. Como preparar o projeto
 
 -   Utilize um JDK compatível com a versão configurada no `pom.xml`
-    (Java 21).
+    (Java 25 LTS).
 -   Abra o projeto pela pasta que contém o `pom.xml`.
 -   O Maven gerencia a dependência OpenCSV, utilizada para ler e gravar
     os arquivos CSV.
@@ -375,25 +375,58 @@ reservas.buscarPorAreaData(
 
 ## 10. Cobranças
 
-Classe de modelo: `Cobranca`; repositório: `CobrancaRepository`.
+O módulo financeiro é responsável pelo gerenciamento das cobranças e pelo cálculo de informações financeiras do condomínio.
 
-O `ReservaService` gera cobranças de reserva automaticamente. O modelo
-também permite representar cobranças condominiais e de cancelamento por
-meio de `TipoCobranca`:
+As principais classes envolvidas são:
 
--   `TAXA_CONDOMINIAL`
--   `TAXA_RESERVA`
--   `CANCELAMENTO_RESERVA`
+- **Model:** `Cobranca` — representa uma cobrança.
+- **Repository:** `CobrancaRepository` — responsável por salvar, listar, buscar e atualizar cobranças no arquivo CSV.
+- **Service:** `CobrancaService` — concentra as regras de negócio relacionadas às operações financeiras.
 
-Os status possíveis são:
+### Tipos e status de cobrança
 
--   `PENDENTE`
--   `PAGO`
--   `CANCELADO`
+O sistema utiliza o enum `TipoCobranca` para identificar as categorias de cobrança:
+
+- `TAXA_CONDOMINIAL`
+- `TAXA_RESERVA`
+- `CANCELAMENTO_RESERVA`
+
+Os status possíveis, definidos em `StatusCobranca`, são:
+
+- `PENDENTE`
+- `PAGO`
+- `CANCELADO`
+
+O `ReservaService` também gera cobranças de reserva automaticamente.
+
+### Geração de taxa condominial
+
+O método `gerarTaxaCondominial(morador, vencimento)` cria uma cobrança para determinado morador.
+
+O valor é calculado considerando:
+
+- Valor fixo de R$ 500,00;
+- Adicional de R$ 50,00 por vaga de garagem.
+
+Após o cálculo, a cobrança é criada com o tipo `TAXA_CONDOMINIAL` e salva por meio do `CobrancaRepository`.
+
+### Registro de pagamento
+
+O método `registrarPagamento(cobranca)` registra o pagamento de uma cobrança.
+
+Antes de realizar a operação, verifica se:
+
+- A cobrança não é nula;
+- A cobrança possui um identificador;
+- O status atual é `PENDENTE`.
+
+Se as condições forem atendidas, o status passa para `PAGO`, a data de pagamento é registrada e a alteração é persistida pelo repositório.
+
+Caso contrário, o método lança uma exceção `IllegalArgumentException`.
 
 ### Verificar atraso e calcular encargos
 
-``` java
+```java
 LocalDate hoje = LocalDate.now();
 
 Cobranca cobranca = cobrancas.listarTudo().get(0);
@@ -403,25 +436,27 @@ long dias = cobranca.diasAtraso(hoje);
 BigDecimal valorAtualizado = cobranca.valorComEncargos(hoje);
 ```
 
-Uma cobrança é considerada atrasada quando está `PENDENTE` e a data
-consultada é posterior ao vencimento. No cálculo implementado, os
-encargos são: - multa de 2% sobre o valor original; - juros de 0,033%
-por dia de atraso (fator `0.00033` por dia); - arredondamento para duas
-casas decimais.
+Uma cobrança é considerada atrasada quando está com status `PENDENTE` e a data consultada é posterior ao vencimento.
 
-O cálculo não altera o valor armazenado na cobrança; retorna um
-`BigDecimal` calculado para a data informada.
+O cálculo dos encargos considera:
 
-`CobrancaRepository.buscarPendentesMorador(moradorId, dia)` retorna as
-cobranças do morador que estejam atrasadas na data consultada. Apesar do
-nome, o método retorna apenas as cobranças que passam pela condição de
-atraso, não todas as cobranças pendentes.
+- Multa de 2% sobre o valor original;
+- Juros de 0,033% por dia de atraso (fator `0.00033`);
+- Arredondamento para duas casas decimais.
 
-**Limitação atual:** não existe `CobrancaService` nem um método de
-repositório específico para registrar o pagamento de uma cobrança e
-persistir essa alteração. Alterar `setStatus(StatusCobranca.PAGO)` em um
-objeto carregado não grava automaticamente o CSV. Essa funcionalidade
-precisa ser implementada se fizer parte do escopo do grupo.
+O cálculo não altera o valor original armazenado na cobrança. Ele retorna um `BigDecimal` com o valor atualizado para a data informada.
+
+O método `CobrancaRepository.buscarPendentesMorador(moradorId, dia)` retorna as cobranças de determinado morador que estejam atrasadas na data consultada. Apesar do nome, retorna somente as cobranças que atendem à condição de atraso, e não todas as cobranças pendentes.
+
+### Relatórios e cálculos financeiros
+
+A classe `CobrancaService` disponibiliza métodos para calcular informações financeiras do condomínio:
+
+- `calcularReceita()`: soma os valores das cobranças com status `PAGO`.
+- `calcularInadimplencia()`: soma os valores atualizados das cobranças em atraso, considerando multa e juros.
+- `calcularDespesas()`: obtém o total de gastos com manutenção por meio do `ManutencaoService`.
+
+Esses métodos retornam valores do tipo `BigDecimal`, permitindo trabalhar com valores monetários com precisão decimal.
 
 ## 11. Como funcionam os repositórios CSV
 
