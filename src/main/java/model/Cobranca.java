@@ -1,14 +1,15 @@
 package model;
 
-import com.opencsv.bean.CsvBindByName;
-import com.opencsv.bean.CsvDate;
-import enums.StatusCobranca;
-import enums.TipoCobranca;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+
+import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvDate;
+
+import enums.StatusCobranca;
+import enums.TipoCobranca;
 
 public class Cobranca implements Identificavel{
     @CsvBindByName private Long id;
