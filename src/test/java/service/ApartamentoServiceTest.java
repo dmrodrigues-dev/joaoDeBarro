@@ -21,18 +21,52 @@ public class ApartamentoServiceTest extends ServiceTestSupport {
     public void naoDuplicaApartamentoComMesmoNumeroETorre() {
         ApartamentoService service = new ApartamentoService(apartamentos);
         service.cadastrarApartamento("A", "101");
-        service.cadastrarApartamento("A", "101");
+        assertThrows(IllegalArgumentException.class, () -> {
+            service.cadastrarApartamento("A", "101");
+        });
         assertEquals(1, service.listarTodos().size());
     }
 
     @Test
-    public void permiteMesmoNumeroEmTorreDiferenteERemove() {
+    public void permiteMesmoNumeroEmTorreDiferente() {
         ApartamentoService service = new ApartamentoService(apartamentos);
         service.cadastrarApartamento("A", "101");
         service.cadastrarApartamento("B", "101");
         assertEquals(2, service.listarTodos().size());
+    }
+
+    @Test
+    public void buscaApartamentoInexistenteDeveLancarExcecao() {
+        ApartamentoService service = new ApartamentoService(apartamentos);
+
+        assertThrows(IllegalArgumentException.class, () ->
+                service.buscarPorNumeroTorre("A", "999")
+        );
+    }
+
+    @Test
+    public void removeApartamentoCadastrado() {
+        ApartamentoService service = new ApartamentoService(apartamentos);
+
+        service.cadastrarApartamento("A", "101");
+
         service.removerApartamento("A", "101");
-        assertNull(service.buscarPorNumeroTorre("A", "101"));
-        assertNotNull(service.buscarPorNumeroTorre("B", "101"));
+
+        assertTrue(service.listarTodos().isEmpty());
+
+        assertThrows(IllegalArgumentException.class, () ->
+                service.buscarPorNumeroTorre("A", "101")
+        );
+    }
+
+    @Test
+    public void removerApartamentoInexistenteDeveLancarExcecao() {
+        ApartamentoService service = new ApartamentoService(apartamentos);
+
+        assertThrows(IllegalArgumentException.class, () ->
+                service.removerApartamento("A", "999")
+        );
+
+        assertTrue(service.listarTodos().isEmpty());
     }
 }

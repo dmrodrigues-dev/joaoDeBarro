@@ -22,16 +22,33 @@ public class MoradorServiceTest extends ServiceTestSupport {
     }
 
     @Test
-    public void rejeitaCpfDuplicadoEApartamentoInexistente() {
+    public void rejeitaCpfDuplicado() {
         ApartamentoService aps = new ApartamentoService(apartamentos);
         aps.cadastrarApartamento("12", "C");
         Long id = aps.buscarPorNumeroTorre("12", "C").getId();
         MoradorService service = new MoradorService(apartamentos, moradores);
         service.cadastrarMorador("Ana", "111", id, 0, 1);
-        service.cadastrarMorador("Outra Ana", "111", id, 0, 1);
-        service.cadastrarMorador("João", "222", 999L, 0, 1);
+        assertThrows(IllegalArgumentException.class, () -> {
+            service.cadastrarMorador("Outra Ana", "111", id, 0, 1);
+        });
         assertEquals(1, service.listarTodos().size());
-        assertNull(service.buscarPorCpf("222"));
+    }
+
+    @Test
+    public void rejeitaApartamentoInexistente() {
+        MoradorService service = new MoradorService(apartamentos, moradores);
+        assertThrows(IllegalArgumentException.class, () -> {
+            service.cadastrarMorador("Ana", "111", 99L, 0, 1);
+        });
+        assertTrue(service.listarTodos().isEmpty());
+    }
+
+    @Test
+    public void buscarMoradorInexistente() {
+        MoradorService service = new MoradorService(apartamentos, moradores);
+        assertThrows(IllegalArgumentException.class, () -> {
+            service.buscarPorCpf("11234");
+        });
     }
 
     @Test
@@ -41,6 +58,18 @@ public class MoradorServiceTest extends ServiceTestSupport {
         MoradorService service = new MoradorService(apartamentos, moradores);
         service.cadastrarMorador("Ana", "111", id, 0, 1);
         service.removerMorador("111");
-        assertNull(service.buscarPorCpf("111"));
+        assertTrue(service.listarTodos().isEmpty());
+        assertThrows(IllegalArgumentException.class, () -> {
+            service.buscarPorCpf("111");
+        });
+    }
+
+    @Test
+    public void removeMoradorInexistente() {
+        MoradorService service = new MoradorService(apartamentos, moradores);
+        assertThrows(IllegalArgumentException.class, () -> {
+            service.removerMorador("111");
+        });
+        assertTrue(service.listarTodos().isEmpty());
     }
 }
