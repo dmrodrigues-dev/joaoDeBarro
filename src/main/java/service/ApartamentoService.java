@@ -13,36 +13,30 @@ public class ApartamentoService {
     }
 
     public List<Apartamento> listarTodos(){
-        List<Apartamento> lista = apartamentoRepository.listarTudo();
-        if (lista.isEmpty()) System.out.println("Não há apartamentos cadastrados.");
-        return lista;
+        return apartamentoRepository.listarTudo();
     }
 
     public Apartamento buscarPorNumeroTorre(String torre, String numero) {
         Apartamento ap = apartamentoRepository.buscarPorTorreNumero(torre, numero);
-        if (ap == null) System.out.println("Apartamento não encontrado.");
+        if (ap == null) throw new IllegalArgumentException("Apartamento não encontrado.");
         return ap;
     }
 
     public void cadastrarApartamento(String torre, String numero) {
         if (apartamentoRepository.buscarPorTorreNumero(torre,  numero) != null) {
-            System.out.println("Já existe um apartamento com este número e torre.");
-            return;
+            throw new IllegalArgumentException("Já existe um apartamento com este número e torre.");
         }
 
         Apartamento apartamento = new Apartamento(torre, numero);
         apartamentoRepository.salvar(apartamento);
-        System.out.println("Apartamento cadastrado com sucesso.");
     }
 
     public void removerApartamento(String torre, String numero) {
         Apartamento apartamento = apartamentoRepository.buscarPorTorreNumero(torre,  numero);
         if (apartamento == null) {
-            System.out.println("Apartamento não encontrado.");
-            return;
+            throw new IllegalArgumentException("Apartamento não encontrado.");
         }
 
         apartamentoRepository.remover(apartamento.getId());
-        System.out.println("Apartamento removido com sucesso.");
     }
 }

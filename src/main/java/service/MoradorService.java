@@ -17,41 +17,34 @@ public class MoradorService {
     }
 
     public List<Morador> listarTodos() {
-        List<Morador> lista = moradorRepository.listarTudo();
-        if (lista.isEmpty()) System.out.println("Não há moradores cadastrados.");
-        return lista;
+        return moradorRepository.listarTudo();
     }
 
     public Morador buscarPorCpf(String cpf) {
         Morador morador = moradorRepository.buscarCpf(cpf);
-        if (morador == null) System.out.println("Morador não encontrado.");
+        if (morador == null) throw new IllegalArgumentException("Morador não encontrado.");
         return morador;
     }
 
     public void cadastrarMorador(String nome, String cpf, Long idApartamento, int qtdPets, int vagasGaragem) {
         if (moradorRepository.buscarCpf(cpf) != null) {
-            System.out.println("Já existe uma morador com esse CPF.");
-            return;
+            throw new IllegalArgumentException("Já existe uma morador com esse CPF.");
         }
 
         if (apartamentoRepository.buscarPorId(idApartamento) == null) {
-            System.out.println("Não foi encontrado um apartamento com o ID fornecido.");
-            return;
+            throw new IllegalArgumentException("Não foi encontrado um apartamento com o ID fornecido.");
         }
 
         Morador morador = new Morador(nome,  cpf, idApartamento, qtdPets, vagasGaragem);
         moradorRepository.salvar(morador);
-        System.out.println("Morador cadastrado com sucesso.");
     }
 
     public void removerMorador(String cpf) {
         Morador morador = moradorRepository.buscarCpf(cpf);
         if (morador == null) {
-            System.out.println("Morador não encontrado.");
-            return;
+            throw new IllegalArgumentException("Morador não encontrado.");
         }
 
         moradorRepository.remover(morador.getId());
-        System.out.println("Morador removido com sucesso.");
     }
 }
